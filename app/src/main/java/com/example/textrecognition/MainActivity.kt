@@ -54,7 +54,7 @@ fun OverlayContent(recognizedTexts: List<String>) {
             items(recognizedTexts) {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.body1,
+                    style = MaterialTheme.typography.h6,
                     color = Color.White,
                 )
             }

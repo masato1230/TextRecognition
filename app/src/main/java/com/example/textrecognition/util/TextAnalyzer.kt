@@ -7,6 +7,7 @@ import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import java.util.Locale.filter
 
 class TextAnalyzer(private val onRecognizeTexts: (texts: List<String>) -> Unit) : ImageAnalysis.Analyzer {
     private val recognizer =
@@ -20,13 +21,20 @@ class TextAnalyzer(private val onRecognizeTexts: (texts: List<String>) -> Unit) 
             ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
             recognizer.process(image)
                 .addOnSuccessListener { recognizedTexts ->
-                    val recognizedStrings = recognizedTexts.textBlocks
-                        .filter { text -> text.text.all { it.toString().toByteArray().size > 1 } }
-                        .map {
-                            return@map it
-                        }
-                        .map { it.text }
-                    onRecognizeTexts(recognizedStrings)
+                    val outputTexts = mutableListOf<String>()
+                    recognizedTexts.textBlocks.forEach {
+                        val japaneseTexts = it.lines
+                            .map { line ->
+                                Log.d("Confidence", line.confidence.toString())
+                                Log.d("Language", line.recognizedLanguage)
+                                return@map line
+                            }
+                            .filter { line -> line.confidence > 0.5f }
+                            .filter { line -> line.recognizedLanguage == "ja" }
+                            .map { line ->  line.text }
+                        outputTexts.addAll(japaneseTexts)
+                        onRecognizeTexts(outputTexts)
+                    }
                 }
                 .addOnFailureListener { it.printStackTrace() }
                 .addOnCompleteListener { imageProxy.close() }
