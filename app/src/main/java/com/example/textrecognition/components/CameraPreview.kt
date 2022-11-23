@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.textrecognition.util.TextAnalyzer
+import com.google.mlkit.vision.text.Text
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -21,7 +23,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun CameraPreview(modifier: Modifier, onQrDetected: (code: String) -> Unit) {
+fun CameraPreview(modifier: Modifier = Modifier, onRecognizeText: (text: Text) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -42,14 +44,14 @@ fun CameraPreview(modifier: Modifier, onQrDetected: (code: String) -> Unit) {
                     it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
-            // QRコード解析UseCase
-            val qrCodeAnalysisUseCase = ImageAnalysis.Builder()
+            // テキスト認識UseCase
+            val textRecognizeUseCase = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
                     it.setAnalyzer(
                         Executors.newSingleThreadExecutor(),
-                        QRCodeAnalyzer(onQrDetected)
+                        TextAnalyzer(onRecognizeText)
                     )
                 }
 
@@ -59,7 +61,7 @@ fun CameraPreview(modifier: Modifier, onQrDetected: (code: String) -> Unit) {
                     // use caseをライフサイクルにバインドする前にアンバインドを行う必要がある
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
-                        lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, previewUseCase, qrCodeAnalysisUseCase
+                        lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, previewUseCase, textRecognizeUseCase
                     )
                 } catch (ex: Exception) {
                     Log.e("CameraPreview", "Use case binding failed", ex)

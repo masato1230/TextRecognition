@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.textrecognition.components.CameraPreview
 import com.example.textrecognition.ui.theme.TextRecognitionTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,6 +23,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    CameraPreview(
+                        modifier = Modifier.fillMaxSize(),
+                        onRecognizeText = {},
+                    )
                 }
             }
         }
