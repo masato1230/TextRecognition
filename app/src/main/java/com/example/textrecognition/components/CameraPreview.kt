@@ -23,7 +23,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun CameraPreview(modifier: Modifier = Modifier, onRecognizeText: (text: Text) -> Unit) {
+fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<String>) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -51,7 +51,7 @@ fun CameraPreview(modifier: Modifier = Modifier, onRecognizeText: (text: Text) -
                 .also {
                     it.setAnalyzer(
                         Executors.newSingleThreadExecutor(),
-                        TextAnalyzer(onRecognizeText)
+                        TextAnalyzer(onRecognizeTexts)
                     )
                 }
 
