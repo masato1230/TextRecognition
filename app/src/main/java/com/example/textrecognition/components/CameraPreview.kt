@@ -24,7 +24,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<Text.Element>) -> Unit) {
+fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<Text.Line>) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 

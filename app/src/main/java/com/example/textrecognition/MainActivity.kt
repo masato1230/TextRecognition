@@ -20,13 +20,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.textrecognition.components.AutoResizeText
 import com.example.textrecognition.components.CameraPreview
+import com.example.textrecognition.components.FontSizeRange
 import com.example.textrecognition.ui.theme.TextRecognitionTheme
 import com.example.textrecognition.util.JaToEngTranslator
 import com.google.mlkit.vision.text.Text
@@ -44,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    var recognizedTexts by remember { mutableStateOf(listOf<Text.Element>()) }
+                    var recognizedTexts by remember { mutableStateOf(listOf<Text.Line>()) }
 
                     CameraPreview(
                         modifier = Modifier.fillMaxSize(),
@@ -59,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun OverlayContent(
-    recognizedTextElements: List<Text.Element>,
+    recognizedTextElements: List<Text.Line>,
     translator: JaToEngTranslator,
     imageSize: Size = Size(1080f, 1920f),
 ) {
@@ -79,28 +83,30 @@ fun OverlayContent(
                 .drawBehind {
                     recognizedTextElements.forEach { textElement ->
                         textElement.boundingBox?.let { rect ->
-                            drawPath(
-                                path = Path().apply {
-                                    moveTo(
-                                        x = rect.left * scaleFactor - offsetXDp * density,
-                                        y = rect.top * scaleFactor
-                                    )
-                                    lineTo(
-                                        x = rect.right * scaleFactor - offsetXDp * density,
-                                        y = rect.top * scaleFactor
-                                    )
-                                    lineTo(
-                                        x = rect.right * scaleFactor - offsetXDp * density,
-                                        y = rect.bottom * scaleFactor
-                                    )
-                                    lineTo(
-                                        x = rect.left * scaleFactor - offsetXDp * density,
-                                        y = rect.bottom * scaleFactor
-                                    )
-                                    close()
-                                },
-                                color = Color.White,
-                            )
+                            rotate(textElement.angle + 90) {
+                                drawPath(
+                                    path = Path().apply {
+                                        moveTo(
+                                            x = rect.left * scaleFactor - offsetXDp * density,
+                                            y = rect.top * scaleFactor
+                                        )
+                                        lineTo(
+                                            x = rect.right * scaleFactor - offsetXDp * density,
+                                            y = rect.top * scaleFactor
+                                        )
+                                        lineTo(
+                                            x = rect.right * scaleFactor - offsetXDp * density,
+                                            y = rect.bottom * scaleFactor
+                                        )
+                                        lineTo(
+                                            x = rect.left * scaleFactor - offsetXDp * density,
+                                            y = rect.bottom * scaleFactor
+                                        )
+                                        close()
+                                    },
+                                    color = Color.White,
+                                )
+                            }
                         }
                     }
                 }
@@ -145,7 +151,7 @@ fun OverlayContent(
                             Log.d("Result", it)
                             text = it
                         }
-                        Text(
+                        AutoResizeText(
                             text = text,
                             color = color,
                             style = textStyle,
@@ -153,18 +159,8 @@ fun OverlayContent(
                             softWrap = false,
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .fillMaxWidth()
-                                .drawWithContent {
-                                    if (readyToDraw) drawContent()
-                                },
-                            onTextLayout = { textLayoutResult ->
-                                if (textLayoutResult.didOverflowWidth) {
-                                    textStyle =
-                                        textStyle.copy(fontSize = textStyle.fontSize * 0.8)
-                                } else {
-                                    readyToDraw = true
-                                }
-                            }
+                                .fillMaxWidth(),
+                            fontSizeRange = FontSizeRange(min = 5.sp, max = 30.sp),
                         )
                     }
                 }

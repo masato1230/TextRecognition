@@ -13,11 +13,11 @@ import java.util.Locale.filter
 import java.util.stream.Collectors.toList
 
 class TextAnalyzer(
-    private val onRecognizeTexts: (texts: List<Text.Element>) -> Unit,
+    private val onRecognizeTexts: (texts: List<Text.Line>) -> Unit,
 ) : ImageAnalysis.Analyzer {
     private val recognizer =
         TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
-    private val outputTexts = mutableListOf<Text.Element>()
+    private val outputTexts = mutableListOf<Text.Line>()
 
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
@@ -27,12 +27,16 @@ class TextAnalyzer(
             recognizer.process(image)
                 .addOnSuccessListener { recognizedTexts ->
                     outputTexts.clear()
-                    recognizedTexts.textBlocks.forEach {
-                        it.lines.forEach { line ->
-//                            val japaneseTexts = line.elements.filter { element -> element.recognizedLanguage == "ja" }
-                            outputTexts.addAll(line.elements)
-                        }
+                    recognizedTexts.textBlocks.forEach { block ->
+//                        it.lines.forEach { line ->
+////                            val japaneseTexts = line.elements.filter { element -> element.recognizedLanguage == "ja" }
+//                            outputTexts.addAll(line.elements)
+//                        }
+                        outputTexts.addAll(block.lines)
                     }
+//                    onRecognizeTexts(
+//                        outputTexts.distinctBy { outputText -> outputText.text }.toList()
+//                    )
                     onRecognizeTexts(
                         outputTexts.distinctBy { outputText -> outputText.text }.toList()
                     )
