@@ -2,6 +2,7 @@ package com.example.textrecognition.components
 
 import android.content.Context
 import android.util.Log
+import android.util.Size
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -23,7 +24,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<String>) -> Unit) {
+fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<Text.Element>) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -47,6 +48,7 @@ fun CameraPreview(modifier: Modifier = Modifier, onRecognizeTexts: (texts: List<
             // テキスト認識UseCase
             val textRecognizeUseCase = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setTargetResolution(Size(1080, 1920))
                 .build()
                 .also {
                     it.setAnalyzer(
