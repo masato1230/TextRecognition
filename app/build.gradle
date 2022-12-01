@@ -72,5 +72,4 @@ dependencies {
 
     // MLKit
     implementation 'com.google.mlkit:text-recognition-japanese:16.0.0-beta6'
-    implementation 'com.google.mlkit:translate:17.0.1'
 }
